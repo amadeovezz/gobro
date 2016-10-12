@@ -3,19 +3,23 @@ package parsers
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"os"
 	"strings"
 )
 
+// Parser manages the structure of a Bro log.
 // Each row in a bro log is represented by a map. The fields as keys
-// and the rows as its corresponding values
-
+// and the rows as its corresponding values.
+// The rows are stored in a buffered channel.
 type Parser struct {
 	fields   []string
 	filepath string
 	Row      chan map[string]string
 }
 
+// NewParser validates the bro log exists and returns a new parser
+// to perform parsing actions on.
 func NewParser(path string) (*Parser, error) {
 
 	if _, err := os.Stat(path); os.IsNotExist(err) {
@@ -29,13 +33,17 @@ func NewParser(path string) (*Parser, error) {
 
 }
 
-func (b *Parser) GetFields() []string {
+// Fields returns the fields of a bro log.
+func (b *Parser) Fields() []string {
 	return b.fields
 }
 
-// TODO remove hardcoding of the seperator, slight chance it could be something
-// other than tabs
+// TODO remove hardcoding of the seperator, it could be something
+// other than tabs (research this)?
 
+// ParseFields parses the fields of a bro log, and stores them in a
+// slice. Their positions in the bro log correspond to their index's
+// in the slice.
 func (p *Parser) ParseFields() error {
 
 	file, fileErr := os.Open(p.filepath)
@@ -65,10 +73,27 @@ func (p *Parser) ParseFields() error {
 
 }
 
+// CreateBuffer initializes the buffer. Without initialization, the channel
+// will block on read's.
+func (p *Parser) CreateBuffer(bufferSize int) {
+	p.Row = make(chan map[string]string, bufferSize)
+}
+
+// BufferRow parses throught the entries (data) of a bro log, and maps
+// them to the fields of the bro log. Every row is then pushed into the
+// channel p.Row.
 func (p *Parser) BufferRow() {
 
-	// Shouldn't have to check for errors here
-	file, _ := os.Open(p.filepath)
+	if p.Row == nil {
+		fmt.Println("Initialize nil channel, via CreateBuffer()")
+		return
+	}
+
+	file, fileErr := os.Open(p.filepath)
+	if fileErr != nil {
+		fmt.Println(fileErr)
+		return
+	}
 	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
@@ -90,7 +115,7 @@ func (p *Parser) BufferRow() {
 				continue
 			}
 
-			// Populate a row map
+			// Create row
 			rowMap := make(map[string]string)
 
 			for i, field := range p.fields {
@@ -103,7 +128,6 @@ func (p *Parser) BufferRow() {
 
 			}
 
-			// Add the row map to the buffer
 			p.Row <- rowMap
 
 		}
@@ -111,4 +135,5 @@ func (p *Parser) BufferRow() {
 	}
 
 	close(p.Row)
+
 }
