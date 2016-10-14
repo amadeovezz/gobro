@@ -1,5 +1,5 @@
 [database]
-Username = "user"
+Username = "root"
 Password = "password"
 IP = "mysql"
 Port = "3306"

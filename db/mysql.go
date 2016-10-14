@@ -61,3 +61,69 @@ func ConnectMySql(user string, pw string, ip string, port string, dbase string) 
 	return db, nil
 
 }
+
+type Conn struct {
+	time       uint64
+	connUID    string
+	origIp     string
+	origPort   string
+	respIp     string
+	respPort   string
+	proto      string
+	service    string
+	duration   float64
+	inBytes    uint64
+	outBytes   uint64
+	inPackets  uint64
+	outPackets uint64
+}
+
+func InsertBatchIntoConn(connRecord []Conn) error {
+
+	tx, err := db.Begin()
+
+	if err != nil {
+		return err
+	}
+
+	stmt, err := db.Prepare(`
+		INSERT INTO conn
+		(time, conn_uid, orig_ip, orig_port, resp_ip, resp_port, proto,
+		service, duration, in_bytes, out_bytes, in_packets, out_packets)
+		VALUES
+		(?,?,?,?,?,?,?,?,?,?,?,?,?)
+	`)
+
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	for _, conn := range connRecord {
+		_, err := stmt.Exec(
+			conn.time,
+			conn.connUID,
+			conn.origIp,
+			conn.origPort,
+			conn.respIp,
+			conn.respPort,
+			conn.proto,
+			conn.service,
+			conn.duration,
+			conn.inBytes,
+			conn.outBytes,
+			conn.inPackets,
+			conn.outPackets,
+		)
+
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
+	tx.Commit()
+
+	return nil
+
+}
