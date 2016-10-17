@@ -1,0 +1,14 @@
+title = "config options for gobro"
+
+# Define what fields should be extracted from the log files
+# If no fields are defined, each parser will read in the entire row
+[parser]
+
+	[parser.conn]
+	fields = ["ts", "uid", "id.orig_h"]
+
+	[parser.dns]
+	fields = ["*"]
+
+	[parser.ssh]
+	fields = ["*"]
