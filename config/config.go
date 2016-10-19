@@ -1,3 +1,9 @@
+// Package config contains all the file dependencies for gobro: config.toml
+// and schema.sql. It also provides utility functions to access the toml
+// objects defined in config.toml. It is important to note that when defining
+// what fields to parse in config.toml, the same fields must be included
+// in schema.sql. However, all fields with ".", must be replaced in
+// the with "_" in schema.sql.
 package config
 
 import (

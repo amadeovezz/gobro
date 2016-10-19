@@ -38,9 +38,9 @@ outputs the data to stdout
 
 packages:
 
-/parsers: logic for parsing each type of BRO log (conn,http,etc) 
+/parsers: logic for parsing BRO logs 
 
-/db: db specific inserts, queries used to generated reports
+/db: db inserts and queries used to generated reports
 
 /logs: example BRO log files that are used for testing/benchmarking purposes
 
@@ -48,15 +48,13 @@ packages:
 
 /tests: for integration tests 
 
-/config: includes toml files used for setup and testing
-
-/docker: docker-compose files used for testing
+/config: includes toml file and schema for launching gobro
 
 /doc: information about the type of statistics that are reported on
 
 # Dependencies
 
-* mysql
+* mysql and config files located in /config
 
 # Additional links
 

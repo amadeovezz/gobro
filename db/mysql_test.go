@@ -1,6 +1,7 @@
 package db
 
 import (
+	"database/sql"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -57,58 +58,44 @@ func TestMain(m *testing.M) {
 
 }
 
-func TestInsert(t *testing.T) {
+func TestBatchInsert(t *testing.T) {
 
-	conn := createConn(1476454019, "axb3912eK345", "10.0.0.20", "22", "8.8.8.8",
-		"88", "tcp", "facebook", 10.001, 200, 4000, 30, 400)
+	// Create buffer
+	connBuffer := make(chan []string, 20)
 
-	conn2 := createConn(1476454020, "bxb3912rReK345", "10.0.0.20", "22", "8.8.8.8",
-		"88", "udp", "", 10.001, 200, 4000, 30, 400)
+	record := []string{"1476454019", "axb3912eK345", "10.0.0.20", "22", "8.8.8.8",
+		"88", "tcp", "facebook", "10.001", "200", "4000", "30", "400"}
 
-	conn3 := createConn(1476854020, "o38912rReK345", "10.0.0.20", "22", "8.8.8.8",
-		"88", "", "linkedin", 10.001, 200, 4000, 30, 400)
+	connBuffer <- record
 
-	conn4 := createConn(1476454020, "c89Ij12rReK345", "10.0.0.20", "22", "8.8.8.8",
-		"88", "udp", "facebook", 10.001, 200, 4000, 30, 400)
+	record = []string{"1476454019", "bxb3912eK345", "10.0.0.20", "22", "8.8.8.8",
+		"88", "tcp", "facebook", "10.001", "200", "4000", "30", "400"}
 
-	connArray := []Conn{conn, conn2, conn3, conn4}
+	connBuffer <- record
 
-	err := InsertBatchIntoConn(connArray)
+	close(connBuffer)
+
+	// Insert into db
+	err := InsertBatch(connBuffer, "conn", len(record))
 	if err != nil {
 		t.Error(err)
 	}
 
-}
+	// Scan row
+	broId := "axb3912eK345"
+	var dbId string
+	err = db.QueryRow("SELECT * FROM conn WHERE uid = ?", broId).Scan(dbId)
 
-func createConn(time uint64,
-	connUID,
-	origIp,
-	origPort,
-	respIp,
-	respPort,
-	proto,
-	service string,
-	duration float64,
-	inBytes uint64,
-	outBytes,
-	inPackets,
-	outPackets uint64) Conn {
+	if err == sql.ErrNoRows {
+		t.Error("Row was not inserted properly")
+	}
 
-	var conn Conn
-	conn.time = time
-	conn.connUID = connUID
-	conn.origIp = origIp
-	conn.origPort = origPort
-	conn.respIp = respIp
-	conn.respPort = respPort
-	conn.proto = proto
-	conn.service = service
-	conn.duration = duration
-	conn.inBytes = inBytes
-	conn.outBytes = outBytes
-	conn.inPackets = inPackets
-	conn.outPackets = outPackets
+	// Scan row
+	broId = "bxb3912eK345"
+	err = db.QueryRow("SELECT * FROM conn WHERE uid = ?", broId).Scan(dbId)
 
-	return conn
+	if err == sql.ErrNoRows {
+		t.Error("Row was not inserted properly")
+	}
 
 }

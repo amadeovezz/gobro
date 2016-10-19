@@ -30,8 +30,8 @@ def unit():
     print commands.getoutput("docker-compose -f db/docker-compose.yml down")
 
 def bring_up_containers():
-    print "Spinning up docker dependencies for testing:\n"
-    print commands.getoutput("docker-compose -f db/docker-compose.yml up -d")
+    print "Spinning up docker dependencies for testing (not daemonized):\n"
+    print commands.getoutput("docker-compose -f db/docker-compose.yml up")
 
 def bring_down_containers():
     print "Bringing down docker dependencies:\n"
@@ -47,7 +47,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Test DB package')
     parser.add_argument('--unit',action="store_true", help='run unit tests')
-    parser.add_argument('--test',action="store_true", help='run unit tests')
+    parser.add_argument('--test',action="store_true", help='run unit tests with assumption contains are up')
     parser.add_argument('--up',action="store_true", help='bring up containers')
     parser.add_argument('--down', action="store_true", help='bring down containers')
 

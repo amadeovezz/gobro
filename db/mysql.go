@@ -12,6 +12,7 @@ import (
 
 var db *sql.DB
 
+// InitDB ensures that a valid connection to the database is established
 func InitDB(user, pw, ip, port, dbase string) error {
 
 	mySql, err := ConnectMySql(user, pw, ip, port, dbase)
@@ -24,6 +25,9 @@ func InitDB(user, pw, ip, port, dbase string) error {
 	return nil
 }
 
+// ConnectMySql tries to connect to the database for a total of 28 seconds.
+// Everytime it cannot connect to the db, it sleeps for +1 seconds longer than the
+// previous iteration. Any other errors besides "connection refused errors" are returned.
 func ConnectMySql(user string, pw string, ip string, port string, dbase string) (*sql.DB, error) {
 
 	// This call doesn't actually communicate with the db
@@ -33,9 +37,7 @@ func ConnectMySql(user string, pw string, ip string, port string, dbase string) 
 		return nil, err
 	}
 
-	// This will wait for a total of 28 seconds before it gives up
-	// 1 + 2 + 3 + 4 + 5 + 6 + 7
-	var second int = 1
+	var currentTime int = 1
 	const maxTime int = 7
 
 	for {
@@ -43,15 +45,15 @@ func ConnectMySql(user string, pw string, ip string, port string, dbase string) 
 
 		if err != nil {
 			if strings.Contains(err.Error(), "connection refused") {
-				fmt.Println("Couldnt connect to mysql, retrying in ", second, " seconds")
-				time.Sleep(time.Duration(second) * time.Second)
-				second++
+				fmt.Println("Couldnt connect to mysql, retrying in ", currentTime, " seconds")
+				time.Sleep(time.Duration(currentTime) * time.Second)
+				currentTime++
 				continue
 			} else {
 				return nil, err
 			}
 
-		} else if second == maxTime {
+		} else if currentTime == maxTime {
 			return nil, errors.New("Connection to mysql timed out")
 		} else {
 			break
@@ -62,23 +64,8 @@ func ConnectMySql(user string, pw string, ip string, port string, dbase string) 
 
 }
 
-type Conn struct {
-	time       uint64
-	connUID    string
-	origIp     string
-	origPort   string
-	respIp     string
-	respPort   string
-	proto      string
-	service    string
-	duration   float64
-	inBytes    uint64
-	outBytes   uint64
-	inPackets  uint64
-	outPackets uint64
-}
-
-func InsertBatchIntoConn(connRecord []Conn) error {
+// InsertBatch, reads from a channel of values and inserts them into the db.
+func InsertBatch(values chan []string, logType string, numOfValues int) error {
 
 	tx, err := db.Begin()
 
@@ -86,36 +73,24 @@ func InsertBatchIntoConn(connRecord []Conn) error {
 		return err
 	}
 
-	stmt, err := db.Prepare(`
-		INSERT INTO conn
-		(time, conn_uid, orig_ip, orig_port, resp_ip, resp_port, proto,
-		service, duration, in_bytes, out_bytes, in_packets, out_packets)
-		VALUES
-		(?,?,?,?,?,?,?,?,?,?,?,?,?)
-	`)
+	insert := "INSERT INTO " + logType + " VALUES (?" + strings.Repeat(",?", numOfValues-1) + ")"
+
+	stmt, err := db.Prepare(insert)
 
 	if err != nil {
 		tx.Rollback()
 		return err
 	}
 
-	for _, conn := range connRecord {
-		_, err := stmt.Exec(
-			conn.time,
-			conn.connUID,
-			conn.origIp,
-			conn.origPort,
-			conn.respIp,
-			conn.respPort,
-			conn.proto,
-			conn.service,
-			conn.duration,
-			conn.inBytes,
-			conn.outBytes,
-			conn.inPackets,
-			conn.outPackets,
-		)
+	for record := range values {
 
+		// convert slice to contain interface types
+		newRecord := make([]interface{}, len(record))
+		for i, v := range record {
+			newRecord[i] = v
+		}
+
+		_, err = stmt.Exec(newRecord...)
 		if err != nil {
 			tx.Rollback()
 			return err
