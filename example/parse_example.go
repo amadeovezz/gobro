@@ -12,8 +12,8 @@ func ParseWithConfigFields() {
 	var config config.Config
 	config.SetupConfig("config/config.toml")
 
-	// Create a new parser
-	parser, err := parse.NewParser("/logs/example.log")
+	// Create a new parser and grab raw entries
+	parser, err := parse.NewParser("/logs/example.log", true)
 	if err != nil {
 		t.Error(err)
 	}
@@ -30,7 +30,9 @@ func ParseWithConfigFields() {
 	// How many rows do you want to buffer
 	parser.CreateBuffer(10)
 
-	go parser.BufferRow()
+	// The definition of ParseConn can just be empty, but it still needs
+	// to be declared
+	go parser.BufferRow(parser.ParseConn)
 
 	// Do stuff with data
 	for row := range parser.Row {
@@ -41,8 +43,8 @@ func ParseWithConfigFields() {
 
 func ParseAllFields() {
 
-	// Create a new parser
-	parser, err := NewParser("../logs/conn.log")
+	// Create a new parser and manipulate specific entries
+	parser, err := NewParser("../logs/conn.log", false)
 	if err != nil {
 		t.Error(err)
 	}
@@ -59,7 +61,8 @@ func ParseAllFields() {
 	// How many rows do you want to buffer
 	parser.CreateBuffer(10)
 
-	go parser.BufferRow()
+	// Define and write a ParseConn to manipulate the data
+	go parser.BufferRow(parser.ParseConn)
 
 	// Do stuff with data
 	for row := range parser.Row {

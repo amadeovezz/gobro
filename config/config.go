@@ -16,10 +16,19 @@ import (
 type Config struct {
 	Title  string
 	Parser map[string]parser
+	DB     database `toml:"database"`
 }
 
 type parser struct {
 	Fields []string
+}
+
+type database struct {
+	Username     string
+	Password     string
+	IP           string
+	Port         string
+	DatabaseName string
 }
 
 func (c *Config) SetupConfig(path string) {

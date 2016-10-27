@@ -10,6 +10,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
+// db represents a valid connection the the database
 var db *sql.DB
 
 // InitDB ensures that a valid connection to the database is established
@@ -43,7 +44,9 @@ func ConnectMySql(user string, pw string, ip string, port string, dbase string) 
 	for {
 		err = db.Ping()
 
-		if err != nil {
+		if currentTime == maxTime {
+			return nil, errors.New("Connection to mysql timed out")
+		} else if err != nil {
 			if strings.Contains(err.Error(), "connection refused") {
 				fmt.Println("Couldnt connect to mysql, retrying in ", currentTime, " seconds")
 				time.Sleep(time.Duration(currentTime) * time.Second)
@@ -53,8 +56,6 @@ func ConnectMySql(user string, pw string, ip string, port string, dbase string) 
 				return nil, err
 			}
 
-		} else if currentTime == maxTime {
-			return nil, errors.New("Connection to mysql timed out")
 		} else {
 			break
 		}
@@ -100,5 +101,43 @@ func InsertBatch(values chan []string, logType string, numOfValues int) error {
 	tx.Commit()
 
 	return nil
+
+}
+
+// TopDomains is a struct that contains the query (second-level domain plus
+// the top-level domain) and the number of times each query has been visited
+type TopDomains struct {
+	Query string
+	Count int
+}
+
+// TopFiveDomains queries the database to retrieve info about the top 5 domains
+func TopFiveDomains() ([]TopDomains, error) {
+
+	rows, err := db.Query(`SELECT query,COUNT(*) AS count FROM dns
+						   GROUP BY query ORDER BY count DESC LIMIT 5`)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var (
+		query   string
+		count   int
+		allRows []TopDomains
+	)
+
+	for rows.Next() {
+		err := rows.Scan(&query, &count)
+		if err != nil {
+			return nil, err
+		}
+
+		allRows = append(allRows, TopDomains{query, count})
+	}
+
+	return allRows, nil
 
 }
