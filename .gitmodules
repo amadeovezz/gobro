@@ -1,6 +1,0 @@
-[submodule "vendor/github.com/BurntSushi/toml"]
-	path = vendor/github.com/BurntSushi/toml
-	url = https://github.com/BurntSushi/toml
-[submodule "vendor/github.com/go-sql-driver/mysql"]
-	path = vendor/github.com/go-sql-driver/mysql
-	url = https://github.com/go-sql-driver/mysql

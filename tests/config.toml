@@ -1,5 +1,15 @@
 title = "config options for gobro"
 
+########### DATABASE ################
+
+[database]
+Username = "root"
+Password = "password"
+IP = "mysql"
+Port = "3306"
+DatabaseName = "gobro"
+
+
 
 ########### PARSER ###############
 
@@ -15,7 +25,7 @@ title = "config options for gobro"
 			  "id.resp_h",
 			  "id.resp_p",
 			  "proto",
-			  "servce",
+			  "service",
 			  "duration",
 			  "orig_bytes",
 			  "resp_bytes",
@@ -62,16 +72,6 @@ title = "config options for gobro"
 			  "server"
 			  ]
 
-
-
-########### DATABASE ################
-
-[database]
-Username = "root"
-Password = "password"
-IP = "mysql"
-Port = "3306"
-DatabaseName = "gobro"
 
 
 

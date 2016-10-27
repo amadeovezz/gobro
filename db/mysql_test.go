@@ -3,43 +3,16 @@ package db
 import (
 	"database/sql"
 	"fmt"
-	"io/ioutil"
-	"log"
-	"path/filepath"
 	"testing"
 
-	"github.com/BurntSushi/toml"
+	"github.com/amadeovezz/gobro/config"
+	"github.com/stretchr/testify/assert"
 )
 
-var conf Config
-
-type Config struct {
-	DB databaseConfig `toml:"database"`
-}
-
-type databaseConfig struct {
-	Username     string
-	Password     string
-	IP           string
-	Port         string
-	DatabaseName string
-}
-
-func setUpConfig(config *Config, path string) {
-
-	filename, _ := filepath.Abs(path)
-	data, err := ioutil.ReadFile(filename)
-	if err != nil {
-		log.Panic(err)
-	}
-
-	if _, err = toml.Decode(string(data), config); err != nil {
-		log.Panic(err)
-	}
-}
+var conf config.Config
 
 func TestMain(m *testing.M) {
-	setUpConfig(&conf, "config.toml")
+	conf.SetupConfig("config.toml")
 
 	err := InitDB(
 		conf.DB.Username,
@@ -97,5 +70,92 @@ func TestBatchInsert(t *testing.T) {
 	if err == sql.ErrNoRows {
 		t.Error("Row was not inserted properly")
 	}
+
+}
+
+func TestQueryTopDomains(t *testing.T) {
+	assert := assert.New(t)
+
+	// Create buffer
+	dnsBuffer := make(chan []string, 20)
+
+	record := []string{"1476454019", "axb3912eK345", "10.0.0.20", "22", "8.8.8.8",
+		"88", "udp", "12", "reddit.com", "0", "0", "0", "-", "-",
+		"-", "-", "-", "-", "-", "-", "-", "-", "-"}
+
+	dnsBuffer <- record
+
+	record = []string{"1476454017", "axb3912eK345", "10.0.0.20", "22", "8.8.8.8",
+		"88", "udp", "12", "reddit.com", "0", "0", "0", "-", "-",
+		"-", "-", "-", "-", "-", "-", "-", "-", "-"}
+
+	dnsBuffer <- record
+
+	record = []string{"1476454018", "axb3912eK345", "10.0.0.20", "22", "8.8.8.8",
+		"88", "udp", "12", "reddit.com", "0", "0", "0", "-", "-",
+		"-", "-", "-", "-", "-", "-", "-", "-", "-"}
+
+	dnsBuffer <- record
+
+	record = []string{"1476454019", "axb3912eK345", "10.0.0.20", "22", "8.8.8.8",
+		"88", "udp", "12", "youtube.com", "0", "0", "0", "-", "-",
+		"-", "-", "-", "-", "-", "-", "-", "-", "-"}
+
+	dnsBuffer <- record
+
+	record = []string{"1476454019", "axb3912eK345", "10.0.0.20", "22", "8.8.8.8",
+		"88", "udp", "12", "youtube.com", "0", "0", "0", "-", "-",
+		"-", "-", "-", "-", "-", "-", "-", "-", "-"}
+
+	dnsBuffer <- record
+
+	record = []string{"1476454019", "axb3912eK345", "10.0.0.20", "22", "8.8.8.8",
+		"88", "udp", "12", "google.com", "0", "0", "0", "-", "-",
+		"-", "-", "-", "-", "-", "-", "-", "-", "-"}
+
+	dnsBuffer <- record
+
+	record = []string{"1476454049", "axb3912eK345", "10.0.0.20", "22", "8.8.8.8",
+		"88", "udp", "12", "google.com", "0", "0", "0", "-", "-",
+		"-", "-", "-", "-", "-", "-", "-", "-", "-"}
+
+	dnsBuffer <- record
+
+	record = []string{"1476452019", "axb3912eK345", "10.0.0.20", "22", "8.8.8.8",
+		"88", "udp", "12", "bro.org", "0", "0", "0", "-", "-",
+		"-", "-", "-", "-", "-", "-", "-", "-", "-"}
+
+	dnsBuffer <- record
+
+	record = []string{"1436454019", "axb3912eK345", "10.0.0.20", "22", "8.8.8.8",
+		"88", "udp", "12", "golang.org", "0", "0", "0", "-", "-",
+		"-", "-", "-", "-", "-", "-", "-", "-", "-"}
+
+	dnsBuffer <- record
+
+	close(dnsBuffer)
+
+	// Insert into db
+	err := InsertBatch(dnsBuffer, "dns", len(record))
+	if err != nil {
+		t.Error(err)
+	}
+
+	domains, err := TopFiveDomains()
+
+	assert.Equal(domains[0].Query, "reddit.com", "wrong domain as most visited")
+	assert.Equal(domains[0].Count, 3, "wrong count as most visited")
+
+	assert.Equal(domains[1].Query, "youtube.com", "wrong domain as second most visited")
+	assert.Equal(domains[1].Count, 2, "wrong count as second most visited")
+
+	assert.Equal(domains[2].Query, "google.com", "wrong domain as second most visited")
+	assert.Equal(domains[2].Count, 2, "wrong count as second most visited")
+
+	assert.Equal(domains[3].Query, "bro.org", "wrong domain as third most visited")
+	assert.Equal(domains[3].Count, 1, "wrong count as third most visited")
+
+	assert.Equal(domains[4].Query, "golang.org", "wrong domain as third most visited")
+	assert.Equal(domains[4].Count, 1, "wrong count as third most visited")
 
 }
