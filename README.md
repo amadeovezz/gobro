@@ -2,9 +2,9 @@
 
 gobro is a golang reporting tool provides general statistics on network behaviour based on BRO IDS logs 
 
-# Features for version 1.0.0
+# Features for version 0.1.0
 
-* Implement parsers for conn, dns, and ssh logs
+* Implement a generic parser for all log types 
 * Expose a generic parsing api out of the /parsers package
 * Report on a couple of general statistics (defined in doc/stats.md)
 * Implement a full unit test suite for /parsers and /db 
