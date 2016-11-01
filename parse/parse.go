@@ -15,10 +15,13 @@ import (
 // FieldsIndex, is only used when a specific set of fields are
 // selected to be parsed. These are defined in config/config.toml
 // The raw field reprents whether or not you want the bro log data in Row
-// to be the raw or augmented values.
+// to be the raw values or augmented values (by passing in functions)
+// The allFields field determins whether you want to use specifc fields from the config
+// or all of the fields in the bro log.
 // Augmented values are produced by defining specific Parse() functions
 type Parser struct {
 	raw         bool
+	allFields   bool
 	fields      []string
 	fieldsIndex []int
 	filepath    string
@@ -27,7 +30,7 @@ type Parser struct {
 
 // NewParser validates the bro log exists and returns a new parser
 // to perform parsing actions on.
-func NewParser(path string, raw bool) (*Parser, error) {
+func NewParser(path string, allFields, raw bool) (*Parser, error) {
 
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		return nil, errors.New("File path does not exist")
@@ -36,6 +39,7 @@ func NewParser(path string, raw bool) (*Parser, error) {
 	p := new(Parser)
 	p.filepath = path
 	p.raw = raw
+	p.allFields = allFields
 	return p, nil
 
 }
@@ -168,6 +172,14 @@ func (p *Parser) BufferRow(parseFunc Parse) {
 		return
 	}
 
+	if p.allFields == false {
+		err := p.GetIndexOfFields()
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+	}
+
 	file, fileErr := os.Open(p.filepath)
 	if fileErr != nil {
 		fmt.Println(fileErr)
@@ -190,7 +202,7 @@ func (p *Parser) BufferRow(parseFunc Parse) {
 			entry := strings.Split(line, "\t")
 
 			// Do we have specific fields we want to parse
-			if p.fieldsIndex != nil {
+			if p.allFields == false {
 				var parsedEntry []string
 				for _, fieldIndex := range p.fieldsIndex {
 					parsedEntry = append(parsedEntry, entry[fieldIndex])

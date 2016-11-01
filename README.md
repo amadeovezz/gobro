@@ -1,38 +1,16 @@
 # gobro
 
-gobro is a golang reporting tool provides general statistics on network behaviour based on BRO IDS logs 
+gobro is a extendable golang toolkit to work with BRO IDS data.
 
 # Features for version 0.1.0
 
-* Implement generic parser for all log types 
-* Expose a generic parsing api out of the /parsers package
-* Report on a couple of general statistics (defined in doc/stats.md)
+* Expose a generic parsing api 
+* Expose a generic api to populate a db using golangs mysql package
 * Implement a full unit test suite for /parsers and /db 
-* Write integration tests for end to end data flow
+* Implement integration tests to test end to end data flow
 * Provide documentation on gobro, and use godoc
-* Setup gobro in docker containers
 
 gobro uses semantic versioning 
-
-# Goals 
-
-* gobro will be fast, it should not take longer than ~3s to generate a report 
-* gobro will not save state and only report only on 24 hours worth of data
-* gobro will report on statistics for a single node running BRO
-
-# Future goals
-
-* gobro will save state
-(create a daemon that pumps logs into a datastore, create an API that exposes metrics, and
-create a client that speaks to the api and outputs results)
-* gobro will report on statistics for an entire network 
-(some hardware must be configured in this case)
-
-# High level data flow
-
-gobro concurrently parses each type of log file, buffers x number of rows, and then sends them to 
-a data store. gobro then runs a list of queries against the db, obtains the results, and 
-outputs the data to stdout
 
 # Project structure 
 
@@ -40,11 +18,7 @@ packages:
 
 /parsers: logic for parsing BRO logs 
 
-/db: db inserts and queries used to generated reports
-
-/logs: example BRO log files that are used for testing/benchmarking purposes
-
-/stdout: formatting for outputting the results 
+/db: db inserts and general utility functions 
 
 /tests: for integration tests 
 
@@ -54,7 +28,8 @@ packages:
 
 # Dependencies
 
-* mysql and config files located in /config
+* toml config file located in /config
+* mysql schema (optional) also located in /config
 
 # Additional links
 
@@ -63,22 +38,131 @@ http://gauss.ececs.uc.edu/Courses/c6055/pdf/bro_log_vars.pdf
 
 # Language
 
-### Networking
-
-* lateral connection: a connection under the same network 
-* outbound connection: a connection that originates inside a network  
-* inbound connection: a connection that originates outside the network 
-
 ### Bro logs
 
 * separator: how bro logs are delimited
 * fields: column names in bro logs
 * entry: a single line in a bro log (the actual data)
 
-# Motivation
+# Example: Parsing bro logs 
 
-* To create a tool that produces useful information about a node's network activity 
-* To learn more about bro, networking, data pipelines and golang
+```go
+package main
+
+import (
+	"fmt"
+	"log"
+
+	"github.com/amadeovezz/gobro/config"
+	"github.com/amadeovezz/gobro/parse"
+)
+
+func main() {
+
+	// Config settings
+	var conf config.Config
+	conf.SetupConfig("config.toml")
+
+	// Create a new parser with specific fields from config and parse raw entries
+	parser, err := parse.NewParser("conn.log", false, true)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	// Grab the specific fields to parse from config
+	parser.SetFields(conf.Parser["conn"].Fields)
+
+	// How many rows do you want to buffer
+	parser.CreateBuffer(100)
+
+	// If we don't want to modify the fields further
+	go parser.BufferRow(func(fields, row []string) ([]string, error) {
+		return row, nil
+	})
+
+	for data := range parser.Row {
+		fmt.Println(data)
+	}
+
+}
+```
+
+# Example: Parsing a bro log and writing the data to mysql 
+
+```go
+package main
+
+import (
+	"errors"
+	"log"
+
+	"golang.org/x/net/publicsuffix"
+
+	"github.com/amadeovezz/gobro/config"
+	"github.com/amadeovezz/gobro/db"
+	"github.com/amadeovezz/gobro/parse"
+)
+
+func DnsParse(fields, row []string) ([]string, error) {
+
+	var newRow []string
+	newRow = row
+
+	for i, field := range fields {
+
+		if field == "query" {
+			if row[i] == "-" {
+				// Maybe change this to bool
+				return nil, errors.New("No query information provided")
+			}
+			secondLevelDomain, err := publicsuffix.EffectiveTLDPlusOne(newRow[i])
+			if err == nil {
+				newRow[i] = secondLevelDomain
+			}
+		}
+
+	}
+
+	return newRow, nil
+
+}
+
+func main() {
+
+	// Config settings
+	var conf config.Config
+	conf.SetupConfig("config.toml")
+	err := db.InitDB(
+		conf.DB.Username,
+		conf.DB.Password,
+		conf.DB.IP,
+		conf.DB.Port,
+		conf.DB.DatabaseName,
+	)
+
+	// Create a new parser with specific fields from config and augement the raw entries
+	parser, err := parse.NewParser("dns.log", false, false)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	// Grab the specific fields to parse from config
+	parser.SetFields(conf.Parser["dns"].Fields)
+
+	// How many rows do you want to buffer
+	parser.CreateBuffer(100)
+
+	// Lets manipulate the dns "query" field 
+	go parser.BufferRow(DnsParse)
+
+	// Insert all rows into db
+	err = db.InsertBatch(parser.Row, "conn", len(parser.Fields()))
+	if err != nil {
+		log.Panic(err)
+	}
+
+}
+```
 
 # Note
 
