@@ -9,7 +9,7 @@ import (
 func TestParsingAllFields(t *testing.T) {
 	assert := assert.New(t)
 
-	parser, err := NewParser("../logs/example.log", true)
+	parser, err := NewParser("../logs/example.log", true, true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -32,7 +32,8 @@ func TestParsingAllFields(t *testing.T) {
 func TestBufferSpecificEntries(t *testing.T) {
 	assert := assert.New(t)
 
-	parser, err := NewParser("../logs/example.log", true)
+	// Create a new parser with specific field and raw values
+	parser, err := NewParser("../logs/example.log", false, true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -41,14 +42,12 @@ func TestBufferSpecificEntries(t *testing.T) {
 
 	parser.SetFields(fieldsToParse)
 
-	err = parser.GetIndexOfFields()
-	if err != nil {
-		t.Fatal(err)
-	}
-
 	parser.CreateBuffer(10)
 
-	go parser.BufferRow(ConnParse)
+	// No need for further data augmentation
+	go parser.BufferRow(func(fields, row []string) ([]string, error) {
+		return row, nil
+	})
 
 	for row := range parser.Row {
 		assert.Equal(row[0], "1452684903.908400", "parsed entries incorrectly")
@@ -62,7 +61,8 @@ func TestBufferSpecificEntries(t *testing.T) {
 func TestBufferAllEntries(t *testing.T) {
 	assert := assert.New(t)
 
-	parser, err := NewParser("../logs/example.log", true)
+	// Create a new parser with all fields from bro log and raw values
+	parser, err := NewParser("../logs/example.log", true, true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -76,7 +76,10 @@ func TestBufferAllEntries(t *testing.T) {
 
 	parser.CreateBuffer(10)
 
-	go parser.BufferRow(ConnParse)
+	// No need for further data augmentation
+	go parser.BufferRow(func(fields, row []string) ([]string, error) {
+		return row, nil
+	})
 
 	for row := range parser.Row {
 		assert.Equal(row[0], "1452684903.908400", "parsed entries incorrectly")
@@ -94,7 +97,7 @@ func TestFieldsToUnderscore(t *testing.T) {
 
 	assert := assert.New(t)
 
-	parser, err := NewParser("../logs/example.log", true)
+	parser, err := NewParser("../logs/example.log", true, true)
 	if err != nil {
 		t.Fatal(err)
 	}

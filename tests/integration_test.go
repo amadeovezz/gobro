@@ -1,8 +1,11 @@
 package tests
 
 import (
+	"errors"
 	"fmt"
 	"testing"
+
+	"golang.org/x/net/publicsuffix"
 
 	"github.com/amadeovezz/gobro/config"
 	"github.com/amadeovezz/gobro/db"
@@ -34,8 +37,8 @@ func TestMain(m *testing.M) {
 
 func TestParseConn(t *testing.T) {
 
-	// Create a new parser
-	parser, err := parse.NewParser("../logs/conn.log", false)
+	// Create a new parser with specific fields, and raw entries
+	parser, err := parse.NewParser("../logs/conn.log", false, true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -43,16 +46,13 @@ func TestParseConn(t *testing.T) {
 	// Grab the specific fields to parse from config
 	parser.SetFields(conf.Parser["conn"].Fields)
 
-	// Grab the index of the specific values that will be parsed
-	err = parser.GetIndexOfFields()
-	if err != nil {
-		t.Fatal(err)
-	}
-
 	// How many rows do you want to buffer
 	parser.CreateBuffer(100)
 
-	go parser.BufferRow(parse.ConnParse)
+	// No need for further data augmentation
+	go parser.BufferRow(func(fields, row []string) ([]string, error) {
+		return row, nil
+	})
 
 	err = db.InsertBatch(parser.Row, "conn", len(parser.Fields()))
 	if err != nil {
@@ -61,10 +61,34 @@ func TestParseConn(t *testing.T) {
 
 }
 
+func DnsParse(fields, row []string) ([]string, error) {
+
+	var newRow []string
+	newRow = row
+
+	for i, field := range fields {
+
+		if field == "query" {
+			if row[i] == "-" {
+				// Maybe change this to bool
+				return nil, errors.New("No query information provided")
+			}
+			secondLevelDomain, err := publicsuffix.EffectiveTLDPlusOne(newRow[i])
+			if err == nil {
+				newRow[i] = secondLevelDomain
+			}
+		}
+
+	}
+
+	return newRow, nil
+
+}
+
 func TestParseDns(t *testing.T) {
 
-	// Create a new parser
-	parser, err := parse.NewParser("../logs/dns.log", false)
+	// Create a new parser with specific field and augemented entries
+	parser, err := parse.NewParser("../logs/dns.log", false, false)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -72,16 +96,11 @@ func TestParseDns(t *testing.T) {
 	// Grab the specific fields to parse from config
 	parser.SetFields(conf.Parser["dns"].Fields)
 
-	// Grab the index of the specific values that will be parsed
-	err = parser.GetIndexOfFields()
-	if err != nil {
-		t.Fatal(err)
-	}
-
 	// How many rows do you want to buffer
 	parser.CreateBuffer(100)
 
-	go parser.BufferRow(parse.DnsParse)
+	// Strip out uncessary domain information
+	go parser.BufferRow(DnsParse)
 
 	// Insert into db
 	err = db.InsertBatch(parser.Row, "dns", len(parser.Fields()))
