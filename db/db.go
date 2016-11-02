@@ -13,23 +13,28 @@ import (
 // db represents a valid connection the the database
 var db *sql.DB
 
+// GetDBConn returns a db connection
+func GetDBConn() *sql.DB {
+	return db
+}
+
 // InitDB ensures that a valid connection to the database is established
 func InitDB(user, pw, ip, port, dbase string) error {
 
-	mySql, err := ConnectMySql(user, pw, ip, port, dbase)
+	sqlConn, err := ConnectToSql(user, pw, ip, port, dbase)
 	if err != nil {
 		return err
 	}
 
-	db = mySql
+	db = sqlConn
 
 	return nil
 }
 
-// ConnectMySql tries to connect to the database for a total of 28 seconds.
+// ConnectToSql tries to connect to the database for a total of 28 seconds.
 // Everytime it cannot connect to the db, it sleeps for +1 seconds longer than the
 // previous iteration. Any other errors besides "connection refused errors" are returned.
-func ConnectMySql(user string, pw string, ip string, port string, dbase string) (*sql.DB, error) {
+func ConnectToSql(user string, pw string, ip string, port string, dbase string) (*sql.DB, error) {
 
 	// This call doesn't actually communicate with the db
 	// it just checks if arguments are valid
@@ -101,43 +106,5 @@ func InsertBatch(values chan []string, logType string, numOfValues int) error {
 	tx.Commit()
 
 	return nil
-
-}
-
-// TopDomains is a struct that contains the query (second-level domain plus
-// the top-level domain) and the number of times each query has been visited
-type TopDomains struct {
-	Query string
-	Count int
-}
-
-// TopFiveDomains queries the database to retrieve info about the top 5 domains
-func TopFiveDomains() ([]TopDomains, error) {
-
-	rows, err := db.Query(`SELECT query,COUNT(*) AS count FROM dns
-						   GROUP BY query ORDER BY count DESC LIMIT 5`)
-
-	if err != nil {
-		return nil, err
-	}
-
-	defer rows.Close()
-
-	var (
-		query   string
-		count   int
-		allRows []TopDomains
-	)
-
-	for rows.Next() {
-		err := rows.Scan(&query, &count)
-		if err != nil {
-			return nil, err
-		}
-
-		allRows = append(allRows, TopDomains{query, count})
-	}
-
-	return allRows, nil
 
 }
