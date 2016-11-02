@@ -38,7 +38,7 @@ func TestMain(m *testing.M) {
 func TestParseConn(t *testing.T) {
 
 	// Create a new parser with specific fields, and raw entries
-	parser, err := parse.NewParser("../logs/conn.log", false, true)
+	parser, err := parse.NewParser("../logs/conn.log", false)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -49,10 +49,7 @@ func TestParseConn(t *testing.T) {
 	// How many rows do you want to buffer
 	parser.CreateBuffer(100)
 
-	// No need for further data augmentation
-	go parser.BufferRow(func(fields, row []string) ([]string, error) {
-		return row, nil
-	})
+	go parser.BufferRow()
 
 	err = db.InsertBatch(parser.Row, "conn", len(parser.Fields()))
 	if err != nil {
@@ -88,7 +85,7 @@ func DnsParse(fields, row []string) ([]string, error) {
 func TestParseDns(t *testing.T) {
 
 	// Create a new parser with specific field and augemented entries
-	parser, err := parse.NewParser("../logs/dns.log", false, false)
+	parser, err := parse.NewParser("../logs/dns.log", false)
 	if err != nil {
 		t.Fatal(err)
 	}

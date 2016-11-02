@@ -1,6 +1,6 @@
 # gobro
 
-gobro is a extendable golang toolkit to work with BRO IDS data.
+gobro is an extendable golang toolkit to work with BRO IDS data.
 
 # Features for version 0.1.0
 
@@ -44,7 +44,11 @@ http://gauss.ececs.uc.edu/Courses/c6055/pdf/bro_log_vars.pdf
 * fields: column names in bro logs
 * entry: a single line in a bro log (the actual data)
 
-# Example: Parsing bro logs 
+# Example 1  
+In this example we are creating a parser and storing the values of a 
+bro log in memory. The boolean parameter "false" for NewParser() indicates 
+that we are going to be parsing specific fields instead of all the fields
+in the bro log. 
 
 ```go
 package main
@@ -59,26 +63,19 @@ import (
 
 func main() {
 
-	// Config settings
 	var conf config.Config
 	conf.SetupConfig("config.toml")
-
-	// Create a new parser with specific fields from config and parse raw entries
-	parser, err := parse.NewParser("conn.log", false, true)
+	
+	parser, err := parse.NewParser("conn.log", false)
 	if err != nil {
 		log.Panic(err)
 	}
 
-	// Grab the specific fields to parse from config
 	parser.SetFields(conf.Parser["conn"].Fields)
 
-	// How many rows do you want to buffer
 	parser.CreateBuffer(100)
 
-	// If we don't want to modify the fields further
-	go parser.BufferRow(func(fields, row []string) ([]string, error) {
-		return row, nil
-	})
+	go parser.BufferRow()
 
 	for data := range parser.Row {
 		fmt.Println(data)
@@ -87,7 +84,14 @@ func main() {
 }
 ```
 
-# Example: Parsing a bro log and writing the data to mysql 
+# Example 2 
+In this example, we pass in true to the boolean argument of
+NewParser. In this case, we must call ParseAllFields() and then
+subsequently pass in returned value to SetFields(). In addition we have 
+decided to modify and augment a certain field in the bro log. 
+We create a function DnsParse() and pass it into BufferRow to 
+perform additional data manipulations on the raw entries. gobro 
+also comes built in with the option to store the data in SQL databases. 
 
 ```go
 package main
@@ -112,7 +116,6 @@ func DnsParse(fields, row []string) ([]string, error) {
 
 		if field == "query" {
 			if row[i] == "-" {
-				// Maybe change this to bool
 				return nil, errors.New("No query information provided")
 			}
 			secondLevelDomain, err := publicsuffix.EffectiveTLDPlusOne(newRow[i])
@@ -129,7 +132,6 @@ func DnsParse(fields, row []string) ([]string, error) {
 
 func main() {
 
-	// Config settings
 	var conf config.Config
 	conf.SetupConfig("config.toml")
 	err := db.InitDB(
@@ -140,22 +142,22 @@ func main() {
 		conf.DB.DatabaseName,
 	)
 
-	// Create a new parser with specific fields from config and augement the raw entries
-	parser, err := parse.NewParser("dns.log", false, false)
+	parser, err := parse.NewParser("dns.log", true)
+	if err != nil {
+		log.Panic(err)
+	}
+	
+	fields, err := parser.ParseAllFields()
 	if err != nil {
 		log.Panic(err)
 	}
 
-	// Grab the specific fields to parse from config
-	parser.SetFields(conf.Parser["dns"].Fields)
+	parser.SetFields(fields)
 
-	// How many rows do you want to buffer
 	parser.CreateBuffer(100)
 
-	// Lets manipulate the dns "query" field 
 	go parser.BufferRow(DnsParse)
 
-	// Insert all rows into db
 	err = db.InsertBatch(parser.Row, "conn", len(parser.Fields()))
 	if err != nil {
 		log.Panic(err)
