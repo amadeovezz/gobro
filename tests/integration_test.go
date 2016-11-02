@@ -105,9 +105,4 @@ func TestParseDns(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	topDomains, err := db.TopFiveDomains()
-
-	fmt.Println(topDomains)
-	fmt.Println(err)
-
 }
