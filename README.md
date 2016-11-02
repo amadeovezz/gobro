@@ -29,7 +29,17 @@ packages:
 # Dependencies
 
 * toml config file located in /config
-* mysql schema (optional) also located in /config
+* mysql schema also located in /config
+
+A note about the toml and the schema file:
+
+config.toml: when defining fields in the [parser] section of the
+toml file, make sure to name the fields exactly as they appear 
+in the bro log. 
+
+schmema.sql: when defining the tables in the schema, make
+sure to name each column exactly how the fields are named
+in config.toml. Except all "." must be replaced with an "_". 
 
 # Additional links
 
@@ -44,7 +54,9 @@ http://gauss.ececs.uc.edu/Courses/c6055/pdf/bro_log_vars.pdf
 * fields: column names in bro logs
 * entry: a single line in a bro log (the actual data)
 
-# Example 1  
+
+# Example 1 : Parsing bro logs
+
 In this example we are creating a parser and storing the values of a 
 bro log in memory. The boolean parameter "false" for NewParser() indicates 
 that we are going to be parsing specific fields instead of all the fields
@@ -84,10 +96,11 @@ func main() {
 }
 ```
 
-# Example 2 
+# Example 2 : Parsing with entry manipulations and storing data in sql
+
 In this example, we pass in true to the boolean argument of
-NewParser. In this case, we must call ParseAllFields() and then
-subsequently pass in returned value to SetFields(). In addition we have 
+NewParser. ParseAllFields() must be called and then the returned fields must
+be passed into SetFields(). In addition we have 
 decided to modify and augment a certain field in the bro log. 
 We create a function DnsParse() and pass it into BufferRow to 
 perform additional data manipulations on the raw entries. gobro 
@@ -165,6 +178,8 @@ func main() {
 
 }
 ```
+
+
 
 # Note
 
