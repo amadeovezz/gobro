@@ -1,4 +1,4 @@
-s an extendable golang toolkit to work with BRO IDS data.
+gobro is an extendable golang toolkit to work with BRO IDS data.
 
 # Features for version 0.1.0
 
