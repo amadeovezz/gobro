@@ -14,13 +14,10 @@ import (
 // Ex: fields[0] is the value at row[0]
 // FieldsIndex, is only used when a specific set of fields are
 // selected to be parsed. These are defined in config/config.toml
-// The raw field reprents whether or not you want the bro log data in Row
-// to be the raw values or augmented values (by passing in functions)
 // The allFields field determins whether you want to use specifc fields from the config
 // or all of the fields in the bro log.
 // Augmented values are produced by defining specific Parse() functions
 type Parser struct {
-	raw         bool
 	allFields   bool
 	fields      []string
 	fieldsIndex []int
@@ -30,7 +27,7 @@ type Parser struct {
 
 // NewParser validates the bro log exists and returns a new parser
 // to perform parsing actions on.
-func NewParser(path string, allFields, raw bool) (*Parser, error) {
+func NewParser(path string, allFields bool) (*Parser, error) {
 
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		return nil, errors.New("File path does not exist")
@@ -38,7 +35,6 @@ func NewParser(path string, allFields, raw bool) (*Parser, error) {
 
 	p := new(Parser)
 	p.filepath = path
-	p.raw = raw
 	p.allFields = allFields
 	return p, nil
 
@@ -160,7 +156,7 @@ type Parse func([]string, []string) ([]string, error)
 // And whether certain fields require extra data manipulation.
 // For extra data manipulation a Parse() function must be defined and
 // passed into BufferRow. Even
-func (p *Parser) BufferRow(parseFunc Parse) {
+func (p *Parser) BufferRow(parseFunc ...Parse) {
 
 	if p.Row == nil {
 		fmt.Println("Initialize nil channel, via CreateBuffer()")
@@ -178,6 +174,13 @@ func (p *Parser) BufferRow(parseFunc Parse) {
 			fmt.Println(err)
 			return
 		}
+	}
+
+	var moreDataFiltering bool
+	if len(parseFunc) == 0 {
+		moreDataFiltering = false
+	} else {
+		moreDataFiltering = true
 	}
 
 	file, fileErr := os.Open(p.filepath)
@@ -209,10 +212,10 @@ func (p *Parser) BufferRow(parseFunc Parse) {
 				}
 
 				// Do we just want the raw entries
-				if p.raw == true {
+				if moreDataFiltering == false {
 					p.Row <- parsedEntry
 				} else {
-					modifiedParsedEntry, err := parseFunc(p.fields, parsedEntry)
+					modifiedParsedEntry, err := parseFunc[0](p.fields, parsedEntry)
 					if err != nil {
 						p.Row <- parsedEntry
 					} else {
@@ -226,10 +229,10 @@ func (p *Parser) BufferRow(parseFunc Parse) {
 					continue
 				}
 				// Do we just want the raw entries
-				if p.raw == true {
+				if moreDataFiltering == false {
 					p.Row <- entry
 				} else {
-					modifiedParsedEntry, err := parseFunc(p.fields, entry)
+					modifiedParsedEntry, err := parseFunc[0](p.fields, entry)
 					if err != nil {
 						p.Row <- entry
 					} else {
