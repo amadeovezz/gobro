@@ -43,8 +43,8 @@ in config.toml. Except all "." must be replaced with an "_".
 
 # Additional links
 
-https://www.bro.org/
-http://gauss.ececs.uc.edu/Courses/c6055/pdf/bro_log_vars.pdf
+* https://www.bro.org/
+* http://gauss.ececs.uc.edu/Courses/c6055/pdf/bro_log_vars.pdf
 
 # Language
 
