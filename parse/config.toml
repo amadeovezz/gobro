@@ -1,0 +1,7 @@
+######## TEST LOGS #########
+[logs]
+PathToLog = "conn.log"
+PathToLargeLog = "big.log"
+
+
+

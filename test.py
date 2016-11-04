@@ -3,6 +3,7 @@
 import commands
 import time
 import argparse
+import os
 
 # This command does the following:
 
@@ -23,6 +24,14 @@ integration_command = """ docker run --rm \
               --link mysql:mysql \
               golang:1.7.1 \
               go test -v """
+
+
+integration_bench_command = """ docker run --rm \
+              -v "$PWD":/go/src/github.com/amadeovezz/gobro \
+              -w /go/src/github.com/amadeovezz/gobro/tests/ \
+              --link mysql:mysql \
+              golang:1.7.1 \
+              go test -bench=. -benchmem integration_test.go """
 
 
 def db_unit():
@@ -50,6 +59,25 @@ def integration():
     print commands.getoutput("docker-compose -f tests/docker-compose.yml down")
 
 
+def run_parse_benchmarks():
+    print "running parsing benchmarks"
+    os.chdir("parse")
+    print commands.getoutput("go test -bench=. -benchmem benchmark_test.go")
+
+def run_int_benchmarks():
+    print "Spinning up docker dependencies for testing:\n"
+    print commands.getoutput("docker-compose -f tests/docker-compose.yml up -d")
+    print "------------------------------------------"
+
+    print "running parsing benchmarks"
+    print commands.getoutput(integration_bench_command)
+
+
+    print "Bringing down docker dependencies:\n"
+    print commands.getoutput("docker-compose -f tests/docker-compose.yml down")
+
+
+
 def run_db_unit_test():
     print "running tests inside docker container:\n"
     print commands.getoutput(unit_command)
@@ -75,7 +103,7 @@ def bring_up_int_containers():
     print commands.getoutput("docker-compose -f tests/docker-compose.yml up")
 
 def bring_down_int_containers():
-    print "Spinning up docker dependencies for testing (not daemonized):\n"
+    print "Spinning down docker dependencies for testing (not daemonized):\n"
     print commands.getoutput("docker-compose -f tests/docker-compose.yml down")
 
 
@@ -84,6 +112,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Test gobro')
     parser.add_argument('--unit',action="store_true", help='run db unit tests')
     parser.add_argument('--int', action="store_true", help='run integration tests')
+    parser.add_argument('--benchparse', action="store_true", help='run parser benchmarks')
+    parser.add_argument('--benchint', action="store_true", help='run integration benchmarks')
     parser.add_argument('--testunit',action="store_true", help='run db unit tests with assumption contains are up')
     parser.add_argument('--testint',action="store_true", help='run integration tests with assumption contains are up')
     parser.add_argument('--updb',action="store_true", help='bring up db containers')
@@ -99,6 +129,12 @@ if __name__ == '__main__':
 
     elif args.unit:
         db_unit()
+
+    elif args.benchparse:
+        run_parse_benchmarks()
+
+    elif args.benchint:
+        run_int_benchmarks()
 
     elif args.testunit:
         run_db_unit_test()

@@ -3,16 +3,48 @@ package tests
 import (
 	"errors"
 	"fmt"
+	"log"
+	"path/filepath"
 	"testing"
 
 	"golang.org/x/net/publicsuffix"
 
-	"github.com/amadeovezz/gobro/config"
+	"github.com/BurntSushi/toml"
 	"github.com/amadeovezz/gobro/db"
 	"github.com/amadeovezz/gobro/parse"
 )
 
-var conf config.Config
+var conf Config
+
+type Config struct {
+	Logs   logs
+	Parser map[string]parser
+	DB     database `toml:"database"`
+}
+
+type parser struct {
+	Fields []string
+}
+
+type database struct {
+	Username     string
+	Password     string
+	IP           string
+	Port         string
+	DatabaseName string
+}
+
+type logs struct {
+	PathToConn string
+	PathToDns  string
+}
+
+func (c *Config) SetupConfig(path string) {
+	filename, _ := filepath.Abs(path)
+	if _, err := toml.DecodeFile(filename, c); err != nil {
+		log.Fatal("setupConfig() could not decode toml, err: ", err)
+	}
+}
 
 func TestMain(m *testing.M) {
 
@@ -38,7 +70,7 @@ func TestMain(m *testing.M) {
 func TestParseConn(t *testing.T) {
 
 	// Create a new parser with specific fields, and raw entries
-	parser, err := parse.NewParser("../logs/conn.log", false)
+	parser, err := parse.NewParser(conf.Logs.PathToConn, false)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -85,7 +117,7 @@ func DnsParse(fields, row []string) ([]string, error) {
 func TestParseDns(t *testing.T) {
 
 	// Create a new parser with specific field and augemented entries
-	parser, err := parse.NewParser("../logs/dns.log", false)
+	parser, err := parse.NewParser(conf.Logs.PathToDns, false)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -103,6 +135,30 @@ func TestParseDns(t *testing.T) {
 	err = db.InsertBatch(parser.Row, "dns", len(parser.Fields()))
 	if err != nil {
 		t.Fatal(err)
+	}
+
+}
+
+func BenchmarkParsingAndInsertingDb(b *testing.B) {
+
+	for i := 0; i < b.N; i++ {
+
+		parser, err := parse.NewParser(conf.Logs.PathToDns, false)
+		if err != nil {
+			b.Fatal(err)
+		}
+
+		parser.SetFields(conf.Parser["dns"].Fields)
+
+		parser.AutoCreateBuffer()
+		parser.BufferRow()
+
+		// Insert into db
+		err = db.InsertBatch(parser.Row, "dns", len(parser.Fields()))
+		if err != nil {
+			b.Fatal(err)
+		}
+
 	}
 
 }
