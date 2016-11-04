@@ -9,7 +9,7 @@ import (
 func TestParsingAllFields(t *testing.T) {
 	assert := assert.New(t)
 
-	parser, err := NewParser("../logs/example.log", true)
+	parser, err := NewParser("example.log", true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -33,7 +33,7 @@ func TestBufferSpecificEntries(t *testing.T) {
 	assert := assert.New(t)
 
 	// Create a new parser with specific field and raw values
-	parser, err := NewParser("../logs/example.log", false)
+	parser, err := NewParser("example.log", false)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -59,7 +59,7 @@ func TestBufferAllEntries(t *testing.T) {
 	assert := assert.New(t)
 
 	// Create a new parser with all fields from bro log and raw values
-	parser, err := NewParser("../logs/example.log", true)
+	parser, err := NewParser("example.log", true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -91,7 +91,7 @@ func TestFieldsToUnderscore(t *testing.T) {
 
 	assert := assert.New(t)
 
-	parser, err := NewParser("../logs/example.log", true)
+	parser, err := NewParser("example.log", true)
 	if err != nil {
 		t.Fatal(err)
 	}

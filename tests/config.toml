@@ -1,5 +1,3 @@
-title = "config options for gobro"
-
 ########### DATABASE ################
 
 [database]
@@ -59,18 +57,11 @@ DatabaseName = "gobro"
 			  "rejected"
 		      ]
 
-	[parser.ssh]
-	fields = ["ts",
-			  "uid",
-			  "id.orig_h", 
-			  "id.orig_p",
-			  "id.resp_h",
-			  "id.resp_p",
-			  "status",
-			  "direction",
-			  "client",
-			  "server"
-			  ]
+
+######## TEST LOGS #########
+[logs]
+PathToConn = "conn.log"
+PathToDns = "dns.log"
 
 
 
