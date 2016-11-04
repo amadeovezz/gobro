@@ -2,8 +2,10 @@ package parse
 
 import (
 	"bufio"
+	"bytes"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 )
@@ -137,6 +139,47 @@ func (p *Parser) ParseAllFields() ([]string, error) {
 
 	return fields, nil
 
+}
+
+// Taken from http://stackoverflow.com/questions/24562942/golang-how-do-i-determine-the-number-of-lines-in-a-file-efficiently
+// CountLines counts the number of lines in a file
+func (p *Parser) CountLines() (int, error) {
+
+	file, fileErr := os.Open(p.filepath)
+	if fileErr != nil {
+		return -1, fileErr
+	}
+	defer file.Close()
+
+	buf := make([]byte, 32*1024)
+	count := 0
+	lineSep := []byte{'\n'}
+
+	for {
+		c, err := file.Read(buf)
+		count += bytes.Count(buf[:c], lineSep)
+
+		switch {
+		case err == io.EOF:
+			return count, nil
+
+		case err != nil:
+			return count, err
+		}
+	}
+
+}
+
+// Wrapper to initialize the buffer with a size equivalent
+// to the number of lines in a log file.
+func (p *Parser) AutoCreateBuffer() error {
+
+	lineNum, err := p.CountLines()
+	if err != nil {
+		return err
+	}
+	p.CreateBuffer(lineNum)
+	return nil
 }
 
 // CreateBuffer initializes the buffer. Without initialization, the channel
