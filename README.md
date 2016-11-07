@@ -42,6 +42,7 @@ in config.toml. Except all "." must be replaced with an "_".
 # Additional links
 
 https://www.bro.org/
+
 http://gauss.ececs.uc.edu/Courses/c6055/pdf/bro_log_vars.pdf
 
 # Language
@@ -56,11 +57,11 @@ http://gauss.ececs.uc.edu/Courses/c6055/pdf/bro_log_vars.pdf
 
 All tests and benchmarks can be run via the test.py python script.
 
-Benchmarks that are run from the /parsers package require log files. You
-can specify their path in /parsers/config.toml.
+Benchmarks that are run from the /parser package require log files. You
+can specify their path in /parser/config.toml.
 
 Tests and benchmarks that are run from the /testing package require log files.
-You can specify their path in /parsers/config.toml.
+You can specify their path in /parser/config.toml.
 
 All tests that require use of a db are transient.
 That is, you do not have to install any db, as long as you have docker and 
@@ -71,8 +72,9 @@ Run: python ./test.py -h for details
 # Benchmarks
 
 Below are some relevant benchmarks run from the parsing package:
-The first two benchmarks were run with a conn.log file with 1468 lines (175K)
-The last benchmark was run with a conn.log file with 100,000 lines (13M)
+
+The first two benchmarks were run with a conn.log file with 1468 lines (175K).
+The last benchmark was run with a conn.log file with 100,000 lines (13M).
 
 ```
 BenchmarkWithAutoInitialization-4      	    1000	   1938466 ns/op	  746983 B/op	    2936 allocs/op
@@ -130,7 +132,7 @@ func main() {
 # Example 2 : Parsing with entry manipulations and storing data in sql
 
 In this example, we decide to parse all fields of the bro log, and thus we pass 
-in true to the boolean argument of NewParser. 
+in true as the boolean argument of NewParser. 
 ParseAllFields() must be called and then the returned fields must
 be passed into SetFields(). In addition we have 
 decided to modify and augment a certain field in the Bro log. 
@@ -200,7 +202,7 @@ func main() {
 
 	parser.SetFields(fields)
 
-	parser.AutoCreateBuffer(100)
+	parser.AutoCreateBuffer()
 
 	go parser.BufferRow(DnsParse)
 
