@@ -1,3 +1,7 @@
+/*
+Package parse is a Go library for parsing Bro logs and working with
+Bro log data.
+*/
 package parse
 
 import (
