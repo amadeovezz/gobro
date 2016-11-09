@@ -1,3 +1,7 @@
+/*
+Package db is a Go library that populates sql databases with Bro log data.
+It was built to work in conjunction with the /parse library
+*/
 package db
 
 import (

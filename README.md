@@ -1,6 +1,6 @@
 # gobro
 
-gobro is an extendable golang toolkit to work with Bro IDS data.
+gobro is a golang toolkit to work with Bro IDS data.
 
 # Features for version 0.1.0
 
@@ -16,7 +16,7 @@ gobro uses semantic versioning
 
 packages:
 
-/parsers: logic for parsing Bro logs 
+/parse: logic for parsing Bro logs 
 
 /db: db inserts and general utility functions 
 
@@ -81,6 +81,13 @@ BenchmarkWithAutoInitialization-4      	    1000	   1938466 ns/op	  746983 B/op	
 BenchmarkWithoutAutoInitialization-4   	    1000	   1922132 ns/op	  746925 B/op	    2933 allocs/op
 BenchmarkLargeLogFile-4                	      10	 157950895 ns/op	51978650 B/op	  200001 allocs/op
 ```
+
+
+# Parsing options 
+
+* parse all fields of a log file
+* customize specific fields you want to parse in the config file
+* customize entry manipulations by defining custom logic
 
 # Example 1 : Parsing bro logs
 
