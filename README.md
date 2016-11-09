@@ -6,7 +6,7 @@ gobro is a golang toolkit to work with Bro IDS data.
 
 * Expose a generic parsing api 
 * Expose a the ability to populate a db using golangs mysql package
-* Implement a full unit test suite for /parsers and /db 
+* Implement a full unit test suite for /parse and /db 
 * Implement integration tests to test end to end data flow
 * Provide documentation on gobro, and use godoc
 
@@ -41,9 +41,8 @@ in config.toml. Except all "." must be replaced with an "_".
 
 # Additional links
 
-https://www.bro.org/
-
-http://gauss.ececs.uc.edu/Courses/c6055/pdf/bro_log_vars.pdf
+* https://www.bro.org/
+* http://gauss.ececs.uc.edu/Courses/c6055/pdf/bro_log_vars.pdf
 
 # Language
 
@@ -220,8 +219,3 @@ func main() {
 
 }
 ```
-
-
-# Note
-
-This project is still in the planning stage. Goals, releases, project structure, architecture, etc... are all subject to change
