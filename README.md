@@ -1,4 +1,5 @@
 # gobro
+[![GoDoc](https://godoc.org/github.com/amadeovezz/gobro?status.svg)](https://godoc.org/github.com/amadeovezz/gobro)
 
 gobro is a golang toolkit to work with Bro IDS data.
 
