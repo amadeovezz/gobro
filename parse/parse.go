@@ -21,8 +21,8 @@ import (
 // FieldsIndex, is only used when a specific set of fields are
 // selected to be parsed. These are defined in config/config.toml
 // The allFields field determins whether you want to use specifc fields from the config
-// or all of the fields in the bro log.
-// Augmented values are produced by defining specific Parse() functions
+// or all of the fields in the Bro log.
+// Augmented values are produced by defining specific Parse() functions.
 type Parser struct {
 	allFields   bool
 	fields      []string
@@ -31,7 +31,7 @@ type Parser struct {
 	Row         chan []string
 }
 
-// NewParser validates the bro log exists and returns a new parser
+// NewParser validates the Bro log exists and returns a new parser
 // to perform parsing actions on.
 func NewParser(path string, allFields bool) (*Parser, error) {
 
@@ -46,7 +46,7 @@ func NewParser(path string, allFields bool) (*Parser, error) {
 
 }
 
-// SetFields assigns the fields to be parsed
+// SetFields assigns the fields to be parsed.
 func (p *Parser) SetFields(fields []string) {
 	p.fields = fields
 }
@@ -56,7 +56,7 @@ func (p *Parser) Fields() []string {
 	return p.fields
 }
 
-// FieldsToUnderscore returns a new array with "." replaced with "_"
+// FieldsToUnderscore returns a new slice with "." replaced with "_".
 func (p *Parser) FieldsToUnderscore() ([]string, error) {
 	var underScoreFields []string
 
@@ -99,7 +99,7 @@ func (p *Parser) GetIndexOfFields() error {
 
 }
 
-// GetIndex returns the index of a specific element in a slice
+// GetIndex returns the index of a specific element in a slice.
 func getIndex(allFields []string, configField string) (int, error) {
 	for i, field := range allFields {
 		if field == configField {
@@ -145,8 +145,9 @@ func (p *Parser) ParseAllFields() ([]string, error) {
 
 }
 
-// Taken from http://stackoverflow.com/questions/24562942/golang-how-do-i-determine-the-number-of-lines-in-a-file-efficiently
-// CountLines counts the number of lines in a file
+// Taken from
+// http://stackoverflow.com/questions/24562942/golang-how-do-i-determine-the-number-of-lines-in-a-file-efficiently.
+// CountLines counts the number of lines in a file.
 func (p *Parser) CountLines() (int, error) {
 
 	file, fileErr := os.Open(p.filepath)
@@ -187,22 +188,22 @@ func (p *Parser) AutoCreateBuffer() error {
 }
 
 // CreateBuffer initializes the buffer. Without initialization, the channel
-// will block on read's.
+// will block on reads.
 func (p *Parser) CreateBuffer(bufferSize int) {
 	p.Row = make(chan []string, bufferSize)
 }
 
-// Parse is used as an argument to BufferRow, to parse, extract and augment,
-// specific values for each log type.
+// Parse is used as an optional argument to BufferRow, and can be used
+// to perform additonal logic on the Bro log data.
 type Parse func([]string, []string) ([]string, error)
 
-// BufferRow parses throught the entries (data) of a bro log,
+// BufferRow parses throught the entries (data) of a Bro log,
 // pushes them into the channel p.Row. There are two options
 // to configure what will be pushed into p.Row.
 // Whether specific fields are defined to be parsed.
 // And whether certain fields require extra data manipulation.
 // For extra data manipulation a Parse() function must be defined and
-// passed into BufferRow. Even
+// passed into BufferRow.
 func (p *Parser) BufferRow(parseFunc ...Parse) {
 
 	if p.Row == nil {

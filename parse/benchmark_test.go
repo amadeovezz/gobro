@@ -7,7 +7,6 @@ import (
 	"testing"
 
 	"github.com/BurntSushi/toml"
-	"github.com/amadeovezz/gobro/parse"
 )
 
 type Config struct {
@@ -38,7 +37,7 @@ func TestMain(m *testing.M) {
 
 func BenchmarkWithAutoInitialization(b *testing.B) {
 
-	parser, err := parse.NewParser(conf.Logs.PathToLog, true)
+	parser, err := NewParser(conf.Logs.PathToLog, true)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -63,7 +62,7 @@ func BenchmarkWithAutoInitialization(b *testing.B) {
 
 func BenchmarkWithoutAutoInitialization(b *testing.B) {
 
-	parser, err := parse.NewParser(conf.Logs.PathToLog, true)
+	parser, err := NewParser(conf.Logs.PathToLog, true)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -85,7 +84,7 @@ func BenchmarkWithoutAutoInitialization(b *testing.B) {
 
 func BenchmarkLargeLogFile(b *testing.B) {
 
-	parser, err := parse.NewParser(conf.Logs.PathToLargeLog, true)
+	parser, err := NewParser(conf.Logs.PathToLargeLog, true)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -121,7 +120,7 @@ func BenchmarkCountingLinesWithWC(b *testing.B) {
 
 func BenchmarkCountingLinesWithGo(b *testing.B) {
 
-	parser, err := parse.NewParser(conf.Logs.PathToLog, true)
+	parser, err := NewParser(conf.Logs.PathToLog, true)
 	if err != nil {
 		log.Panic(err)
 	}
