@@ -1,7 +1,7 @@
 /*
 Package config provides utility functions to access the toml
-objects defined in config.toml (examples of a config file is located at:
-https://github.com/amadeovezz/gobro/tree/master/config)
+objects defined in config.toml. Examples of a config file is located at:
+https://github.com/amadeovezz/gobro/tree/master/config. 
 It is important to note that when defining
 what fields to parse in config.toml, the same fields must be included
 in schema.sql. However, all fields with ".", must be replaced in
