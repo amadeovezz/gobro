@@ -1,3 +1,12 @@
+# App specifc 
+vendor/
+logs/conn.log
+logs/dns.log
+parser/conn.log
+parser/big.log
+
+
+
 # Compiled Object files, Static and Dynamic libs (Shared Objects)
 *.o
 *.a

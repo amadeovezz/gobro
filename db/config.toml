@@ -1,0 +1,7 @@
+[database]
+Username = "root"
+Password = "password"
+IP = "mysql"
+Port = "3306"
+DatabaseName = "gobro"
+

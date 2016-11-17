@@ -1,0 +1,68 @@
+########### DATABASE ################
+
+[database]
+Username = "root"
+Password = "password"
+IP = "mysql"
+Port = "3306"
+DatabaseName = "gobro"
+
+
+
+########### PARSER ###############
+
+# Define what fields should be extracted from the log files
+# If no fields are defined, each parser will read in the entire row
+[parser]
+
+	[parser.conn]
+	fields = ["ts",
+	    	  "uid",
+			  "id.orig_h", 
+			  "id.orig_p",
+			  "id.resp_h",
+			  "id.resp_p",
+			  "proto",
+			  "service",
+			  "duration",
+			  "orig_bytes",
+			  "resp_bytes",
+			  "orig_pkts",
+			  "resp_pkts"
+			  ]
+
+	[parser.dns]
+	fields = ["ts",
+	    	  "uid",
+			  "id.orig_h", 
+			  "id.orig_p",
+			  "id.resp_h",
+			  "id.resp_p",
+			  "proto",
+			  "trans_id",
+			  "query",
+			  "qclass",
+			  "qclass_name",
+			  "qtype",
+			  "qtype_name",
+			  "rcode",
+			  "rcode_name",
+			  "AA",
+			  "TC",
+			  "RD",
+			  "RA",
+			  "Z",
+			  "answers",
+			  "TTLs",
+			  "rejected"
+		      ]
+
+
+######## TEST LOGS #########
+[logs]
+PathToConn = "conn.log"
+PathToDns = "dns.log"
+
+
+
+
