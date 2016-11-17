@@ -1,4 +1,5 @@
 # App specifc 
+vendor/
 logs/conn.log
 logs/dns.log
 parser/conn.log

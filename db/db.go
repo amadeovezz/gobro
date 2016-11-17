@@ -1,6 +1,6 @@
 /*
 Package db is a Go library that populates sql databases with Bro log data.
-It was built to work in conjunction with the /parse library
+It was built to work in conjunction with the github.com/amadeovezz/gobro/parse library.
 */
 package db
 
@@ -14,15 +14,15 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-// db represents a valid connection the the database
+// db represents a valid connection the the database.
 var db *sql.DB
 
-// GetDBConn returns a db connection
+// GetDBConn returns a db connection.
 func GetDBConn() *sql.DB {
 	return db
 }
 
-// InitDB ensures that a valid connection to the database is established
+// InitDB ensures that a valid connection to the database is established.
 func InitDB(user, pw, ip, port, dbase string) error {
 
 	sqlConn, err := ConnectToSql(user, pw, ip, port, dbase)

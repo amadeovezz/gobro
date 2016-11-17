@@ -62,7 +62,7 @@ def integration():
 def run_parse_benchmarks():
     print "running parsing benchmarks"
     os.chdir("parse")
-    print commands.getoutput("go test -bench=. -benchmem benchmark_test.go")
+    print commands.getoutput("go test -bench=. -benchmem parse.go benchmark_test.go")
 
 def run_int_benchmarks():
     print "Spinning up docker dependencies for testing:\n"

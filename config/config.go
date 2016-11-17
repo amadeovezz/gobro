@@ -1,7 +1,8 @@
 /*
-Package config contains all the file dependencies for gobro: config.toml
-and schema.sql. It also provides utility functions to access the toml
-objects defined in config.toml. It is important to note that when defining
+Package config provides utility functions to access the toml
+objects defined in config.toml. Examples of a config file is located at:
+https://github.com/amadeovezz/gobro/tree/master/config. 
+It is important to note that when defining
 what fields to parse in config.toml, the same fields must be included
 in schema.sql. However, all fields with ".", must be replaced in
 the with "_" in schema.sql.
@@ -15,6 +16,7 @@ import (
 	"github.com/BurntSushi/toml"
 )
 
+// Config represents config options for fields to parse and db options
 type Config struct {
 	Title  string
 	Parser map[string]parser
@@ -33,9 +35,10 @@ type database struct {
 	DatabaseName string
 }
 
+// SetupConfig parses a toml file and log.Fatal's if it cannot parse it correctly
 func (c *Config) SetupConfig(path string) {
 	filename, _ := filepath.Abs(path)
 	if _, err := toml.DecodeFile(filename, c); err != nil {
-		log.Fatal("setupConfig() could not decode toml, err: ", err)
+		log.Fatal("SetupConfig() could not decode toml, err: ", err)
 	}
 }
