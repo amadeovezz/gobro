@@ -88,6 +88,7 @@ func TestParseConn(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	log.Fatal("reached parseconn")
 }
 
 func DnsParse(fields, row []string) ([]string, error) {

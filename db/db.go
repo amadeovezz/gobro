@@ -8,6 +8,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -74,7 +75,7 @@ func ConnectToSql(user string, pw string, ip string, port string, dbase string) 
 
 }
 
-// InsertBatch, reads from a channel of values and inserts them into the db.
+// InsertBatch reads from a channel of values and inserts them into the db.
 func InsertBatch(values chan []string, logType string, numOfValues int) error {
 
 	tx, err := db.Begin()
@@ -99,6 +100,7 @@ func InsertBatch(values chan []string, logType string, numOfValues int) error {
 		for i, v := range record {
 			newRecord[i] = v
 		}
+		log.Fatal("reached insertbatch")
 
 		_, err = stmt.Exec(newRecord...)
 		if err != nil {

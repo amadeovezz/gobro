@@ -19,12 +19,12 @@ unit_command = """ docker run --rm \
               go test -v """
 
 integration_command = """ docker run --rm \
-              -v "$PWD":/go/src/github.com/amadeovezz/gobro \
+              -v "$GOPATH":/go \
+              -v "$GOPATH"/src/github.com/amadeovezz/gobro/test_resources:/go/test_resources \
               -w /go/src/github.com/amadeovezz/gobro/tests/ \
               --link mysql:mysql \
               golang:1.7.1 \
               go test -v """
-
 
 integration_bench_command = """ docker run --rm \
               -v "$PWD":/go/src/github.com/amadeovezz/gobro \
@@ -153,4 +153,3 @@ if __name__ == '__main__':
 
     elif args.downint:
         bring_down_int_containers()
-

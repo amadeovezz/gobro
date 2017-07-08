@@ -18,7 +18,7 @@ DatabaseName = "gobro"
 	[parser.conn]
 	fields = ["ts",
 	    	  "uid",
-			  "id.orig_h", 
+			  "id.orig_h",
 			  "id.orig_p",
 			  "id.resp_h",
 			  "id.resp_p",
@@ -34,7 +34,7 @@ DatabaseName = "gobro"
 	[parser.dns]
 	fields = ["ts",
 	    	  "uid",
-			  "id.orig_h", 
+			  "id.orig_h",
 			  "id.orig_p",
 			  "id.resp_h",
 			  "id.resp_p",
@@ -60,9 +60,5 @@ DatabaseName = "gobro"
 
 ######## TEST LOGS #########
 [logs]
-PathToConn = "conn.log"
-PathToDns = "dns.log"
-
-
-
-
+PathToConn = "/go/test_resources/conn.log"
+PathToDns = "/go/test_resources/dns.log"
