@@ -8,7 +8,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"log"
 	"strings"
 	"time"
 
@@ -100,7 +99,6 @@ func InsertBatch(values chan []string, logType string, numOfValues int) error {
 		for i, v := range record {
 			newRecord[i] = v
 		}
-		log.Fatal("reached insertbatch")
 
 		_, err = stmt.Exec(newRecord...)
 		if err != nil {

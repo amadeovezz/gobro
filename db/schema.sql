@@ -1,7 +1,6 @@
 CREATE DATABASE gobro;
 USE gobro;
 
-
 CREATE TABLE IF NOT EXISTS `conn` (
     `ts` DOUBLE UNSIGNED NOT NULL,
     `uid` VARCHAR(255) NOT NULL ,
@@ -44,7 +43,6 @@ CREATE TABLE IF NOT EXISTS `dns` (
     `rejected` VARCHAR(2) NOT NULL
 );
 
-
 CREATE TABLE IF NOT EXISTS `ssh` (
     `ts` DOUBLE UNSIGNED NOT NULL,
     `uid` VARCHAR(255) NOT NULL NOT NULL,
@@ -57,6 +55,3 @@ CREATE TABLE IF NOT EXISTS `ssh` (
     `client` VARCHAR(255) NOT NULL,
     `server` VARCHAR(255) NOT NULL
 );
-
-
-
