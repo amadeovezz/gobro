@@ -1,8 +1,6 @@
 title = "config options for gobro"
 
-
 ########### PARSER ###############
-
 # Define what fields should be extracted from the log files
 # If no fields are defined, each parser will read in the entire row
 [parser]
@@ -10,7 +8,7 @@ title = "config options for gobro"
 	[parser.conn]
 	fields = ["ts",
 	    	  "uid",
-			  "id.orig_h", 
+			  "id.orig_h",
 			  "id.orig_p",
 			  "id.resp_h",
 			  "id.resp_p",
@@ -26,7 +24,7 @@ title = "config options for gobro"
 	[parser.dns]
 	fields = ["ts",
 	    	  "uid",
-			  "id.orig_h", 
+			  "id.orig_h",
 			  "id.orig_p",
 			  "id.resp_h",
 			  "id.resp_p",
@@ -52,7 +50,7 @@ title = "config options for gobro"
 	[parser.ssh]
 	fields = ["ts",
 			  "uid",
-			  "id.orig_h", 
+			  "id.orig_h",
 			  "id.orig_p",
 			  "id.resp_h",
 			  "id.resp_p",
@@ -62,16 +60,10 @@ title = "config options for gobro"
 			  "server"
 			  ]
 
-
-
 ########### DATABASE ################
-
 [database]
 Username = "root"
 Password = "password"
 IP = "mysql"
 Port = "3306"
 DatabaseName = "gobro"
-
-
-

@@ -1,7 +1,4 @@
 ######## TEST LOGS #########
 [logs]
-PathToLog = "conn.log"
-PathToLargeLog = "big.log"
-
-
-
+PathToLog = "../sample_logs/conn.log"
+PathToLargeLog = "../sample_logs/big.log"

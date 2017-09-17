@@ -1,5 +1,4 @@
 ########### DATABASE ################
-
 [database]
 Username = "root"
 Password = "password"
@@ -7,10 +6,7 @@ IP = "mysql"
 Port = "3306"
 DatabaseName = "gobro"
 
-
-
 ########### PARSER ###############
-
 # Define what fields should be extracted from the log files
 # If no fields are defined, each parser will read in the entire row
 [parser]
@@ -57,8 +53,7 @@ DatabaseName = "gobro"
 			  "rejected"
 		      ]
 
-
 ######## TEST LOGS #########
 [logs]
-PathToConn = "/go/test_resources/conn.log"
-PathToDns = "/go/test_resources/dns.log"
+PathToConn = "/go/sample_logs/conn.log"
+PathToDns = "/go/sample_logs/dns.log"
