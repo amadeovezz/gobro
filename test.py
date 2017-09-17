@@ -5,6 +5,8 @@ import os
 import shlex
 import subprocess
 import sys
+import db.test as db
+import parse.test as parse
 
 # This command does the following:
 # Runs the golang:1.7.1 image
@@ -38,11 +40,11 @@ def run_command(command):
 
 def start_compose_environment():
     print "Spinning up integration test containers:\n"
-    run_command("docker-compose -f tests/docker-compose.yml up -d")
+    run_command("docker-compose -f " + gopath + "/src/github.com/amadeovezz/gobro/tests/docker-compose.yml up -d")
 
 def stop_compose_environment():
     print "Taking down integration test containers:\n"
-    run_command("docker-compose -f tests/docker-compose.yml down")
+    run_command("docker-compose -f " + gopath + "/src/github.com/amadeovezz/gobro/tests/docker-compose.yml down")
 
 def run_integration_test():
     print "\nRunning integration test suite:\n"
@@ -56,15 +58,34 @@ def run_integration_benchmarks():
     run_command(integration_bench_command)
     print "------------------------------------------"
 
+def run_package_tests():
+    # db package tests
+    db.start_compose_environment()
+    db.run_integration_test()
+    db.stop_compose_environment()
+
+    print "\n------------------------------------------\n"
+
+    # parse package tests
+    os.chdir(gopath + "/src/github.com/amadeovezz/gobro/parse")
+    parse.run_tests()
+
+def run_package_benchmarks():
+    # parse benchmarks
+    os.chdir(gopath + "/src/github.com/amadeovezz/gobro/parse")
+    parse.run_benchmarks()
+
 
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Test gobro')
     parser.add_argument('--up', action="store_true", help='bring up docker compose environment')
     parser.add_argument('--down', action="store_true", help='take down docker compose environment')
-    parser.add_argument('--full', action="store_true", help='run integration tests and benchmarks from scratch and clean up after')
-    parser.add_argument('--test', action="store_true", help='run tests assuming environment is up')
-    parser.add_argument('--bench', action="store_true", help='run benchmarks assuming environment is up')
+    parser.add_argument('--full', action="store_true", help='run package and integration tests and benchmarks from scratch and clean up after')
+    parser.add_argument('--package', action="store_true", help='run individual package tests')
+    parser.add_argument('--package-bench', action="store_true", help='run individual package benchmarks')
+    parser.add_argument('--int', action="store_true", help='run integration tests assuming environment is up')
+    parser.add_argument('--bench', action="store_true", help='run integration benchmarks assuming environment is up')
 
     args = parser.parse_args()
 
@@ -73,11 +94,19 @@ if __name__ == '__main__':
     elif args.down:
         stop_compose_environment()
     elif args.full:
+        run_package_tests()
+        print "\n------------------------------------------\n"
+        run_package_benchmarks()
+        print "\n------------------------------------------\n"
         start_compose_environment()
         run_integration_test()
         run_integration_benchmarks()
         stop_compose_environment()
-    elif args.test:
+    elif args.package:
+        run_package_tests()
+    elif args.package_bench:
+        run_package_benchmarks()
+    elif args.int:
         run_integration_test()
     elif args.bench:
         run_integration_benchmarks()

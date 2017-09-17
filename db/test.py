@@ -24,11 +24,11 @@ def run_command(command):
 
 def start_compose_environment():
     print "Spinning up mysql container for testing:\n"
-    run_command("docker-compose -f docker-compose.yml up -d")
+    run_command("docker-compose -f " + gopath + "/src/github.com/amadeovezz/gobro/db/docker-compose.yml up -d")
 
 def stop_compose_environment():
     print "Taking down mysql container:\n"
-    run_command("docker-compose -f docker-compose.yml down")
+    run_command("docker-compose -f " + gopath + "/src/github.com/amadeovezz/gobro/db/docker-compose.yml down")
 
 def run_integration_test():
     print "\nRunning database integration tests:\n"
@@ -39,7 +39,7 @@ def run_integration_test():
 
 if __name__ == '__main__':
 
-    parser = argparse.ArgumentParser(description='Test gobro')
+    parser = argparse.ArgumentParser(description='Test db package')
     parser.add_argument('--up', action="store_true", help='bring up docker compose environment')
     parser.add_argument('--down', action="store_true", help='take down docker compose environment')
     parser.add_argument('--full', action="store_true", help='run test suite from scratch and clean up after')

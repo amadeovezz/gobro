@@ -64,7 +64,6 @@ func TestMain(m *testing.M) {
 	}
 
 	m.Run()
-
 }
 
 func TestParseConn(t *testing.T) {
@@ -106,11 +105,9 @@ func DnsParse(fields, row []string) ([]string, error) {
 				newRow[i] = secondLevelDomain
 			}
 		}
-
 	}
 
 	return newRow, nil
-
 }
 
 func TestParseDns(t *testing.T) {
@@ -135,7 +132,6 @@ func TestParseDns(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-
 }
 
 func BenchmarkParsingAndInsertingDb(b *testing.B) {
@@ -157,7 +153,5 @@ func BenchmarkParsingAndInsertingDb(b *testing.B) {
 		if err != nil {
 			b.Fatal(err)
 		}
-
 	}
-
 }

@@ -43,7 +43,6 @@ func NewParser(path string, allFields bool) (*Parser, error) {
 	p.filepath = path
 	p.allFields = allFields
 	return p, nil
-
 }
 
 // SetFields assigns the fields to be parsed.
@@ -70,7 +69,6 @@ func (p *Parser) FieldsToUnderscore() ([]string, error) {
 	}
 
 	return underScoreFields, nil
-
 }
 
 // GetIndexOfFields creates a slice that contains the index of specific
@@ -96,7 +94,6 @@ func (p *Parser) GetIndexOfFields() error {
 	}
 
 	return nil
-
 }
 
 // GetIndex returns the index of a specific element in a slice.
@@ -142,12 +139,11 @@ func (p *Parser) ParseAllFields() ([]string, error) {
 	}
 
 	return fields, nil
-
 }
 
+// CountLines counts the number of lines in a file.
 // Taken from
 // http://stackoverflow.com/questions/24562942/golang-how-do-i-determine-the-number-of-lines-in-a-file-efficiently.
-// CountLines counts the number of lines in a file.
 func (p *Parser) CountLines() (int, error) {
 
 	file, fileErr := os.Open(p.filepath)
@@ -172,10 +168,9 @@ func (p *Parser) CountLines() (int, error) {
 			return count, err
 		}
 	}
-
 }
 
-// Wrapper to initialize the buffer with a size equivalent
+// AutoCreateBuffer is a wrapper to initialize the buffer with a size equivalent
 // to the number of lines in a log file.
 func (p *Parser) AutoCreateBuffer() error {
 
@@ -295,5 +290,4 @@ func (p *Parser) BufferRow(parseFunc ...Parse) {
 	}
 
 	close(p.Row)
-
 }
