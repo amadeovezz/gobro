@@ -74,7 +74,7 @@ func ConnectToSql(user string, pw string, ip string, port string, dbase string) 
 
 }
 
-// InsertBatch, reads from a channel of values and inserts them into the db.
+// InsertBatch reads from a channel of values and inserts them into the db.
 func InsertBatch(values chan []string, logType string, numOfValues int) error {
 
 	tx, err := db.Begin()

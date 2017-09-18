@@ -1,0 +1,9 @@
+#separator \x09
+#set_separator	,
+#empty_field	(empty)
+#unset_field	-
+#path	conn
+#open	2016-01-13-06-41-02
+#fields	ts	uid	id.orig_h	id.orig_p	id.resp_h	id.resp_p	proto	
+#types	time	string	addr	port	addr	port	enum	string	
+1452684903.908400	CbOiIv2wbbH7F25W21	10.1.20.227	37218	204.238.149.187	443	tcp	

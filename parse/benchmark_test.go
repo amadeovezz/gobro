@@ -110,7 +110,7 @@ func BenchmarkLargeLogFile(b *testing.B) {
 func BenchmarkCountingLinesWithWC(b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
-		_, err := exec.Command("wc", "-l", "conn.log").Output()
+		_, err := exec.Command("wc", "-l", conf.Logs.PathToLog).Output()
 		if err != nil {
 			b.Fatal(err)
 		}

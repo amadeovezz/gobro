@@ -6,10 +6,12 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var logpath = "../sample_logs/conn.log"
+
 func TestParsingAllFields(t *testing.T) {
 	assert := assert.New(t)
 
-	parser, err := NewParser("example.log", true)
+	parser, err := NewParser(logpath, true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -33,7 +35,7 @@ func TestBufferSpecificEntries(t *testing.T) {
 	assert := assert.New(t)
 
 	// Create a new parser with specific field and raw values
-	parser, err := NewParser("example.log", false)
+	parser, err := NewParser(logpath, false)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -59,7 +61,7 @@ func TestBufferAllEntries(t *testing.T) {
 	assert := assert.New(t)
 
 	// Create a new parser with all fields from bro log and raw values
-	parser, err := NewParser("example.log", true)
+	parser, err := NewParser(logpath, true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -91,7 +93,7 @@ func TestFieldsToUnderscore(t *testing.T) {
 
 	assert := assert.New(t)
 
-	parser, err := NewParser("example.log", true)
+	parser, err := NewParser(logpath, true)
 	if err != nil {
 		t.Fatal(err)
 	}
