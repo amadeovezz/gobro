@@ -10,6 +10,7 @@ parser/big.log
 *.o
 *.a
 *.so
+*.pyc
 
 # Folders
 _obj

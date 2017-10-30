@@ -2,7 +2,7 @@ package db
 
 import (
 	"database/sql"
-	"fmt"
+	"log"
 	"testing"
 
 	"github.com/amadeovezz/gobro/config"
@@ -20,18 +20,14 @@ func TestMain(m *testing.M) {
 		conf.DB.Port,
 		conf.DB.DatabaseName,
 	)
-
 	if err != nil {
-		fmt.Println(err)
-		return
+		log.Fatal(err)
 	}
 
 	m.Run()
-
 }
 
 func TestBatchInsert(t *testing.T) {
-
 	// Create buffer
 	connBuffer := make(chan []string, 20)
 
@@ -54,20 +50,19 @@ func TestBatchInsert(t *testing.T) {
 	}
 
 	// Scan row
-	broId := "axb3912eK345"
-	var dbId string
-	err = db.QueryRow("SELECT * FROM conn WHERE uid = ?", broId).Scan(dbId)
+	broID := "axb3912eK345"
+	var dbID string
+	err = db.QueryRow("SELECT * FROM conn WHERE uid = ?", broID).Scan(dbID)
 
 	if err == sql.ErrNoRows {
 		t.Error("Row was not inserted properly")
 	}
 
 	// Scan row
-	broId = "bxb3912eK345"
-	err = db.QueryRow("SELECT * FROM conn WHERE uid = ?", broId).Scan(dbId)
+	broID = "bxb3912eK345"
+	err = db.QueryRow("SELECT * FROM conn WHERE uid = ?", broID).Scan(dbID)
 
 	if err == sql.ErrNoRows {
 		t.Error("Row was not inserted properly")
 	}
-
 }
