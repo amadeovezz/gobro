@@ -1,5 +1,4 @@
 # App specifc 
-vendor/
 logs/conn.log
 logs/dns.log
 parser/conn.log
@@ -11,6 +10,7 @@ parser/big.log
 *.o
 *.a
 *.so
+*.pyc
 
 # Folders
 _obj

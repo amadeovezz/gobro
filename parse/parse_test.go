@@ -6,10 +6,12 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var logpath = "../sample_logs/conn.log"
+
 func TestParsingAllFields(t *testing.T) {
 	assert := assert.New(t)
 
-	parser, err := NewParser("example.log", true)
+	parser, err := NewParser(logpath, true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -26,14 +28,13 @@ func TestParsingAllFields(t *testing.T) {
 	assert.Equal(fields[4], "id.resp_h", "parsed fields incorrectly")
 	assert.Equal(fields[5], "id.resp_p", "parsed fields incorrectly")
 	assert.Equal(fields[6], "proto", "parsed fields incorrectly")
-
 }
 
 func TestBufferSpecificEntries(t *testing.T) {
 	assert := assert.New(t)
 
 	// Create a new parser with specific field and raw values
-	parser, err := NewParser("example.log", false)
+	parser, err := NewParser(logpath, false)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -52,14 +53,13 @@ func TestBufferSpecificEntries(t *testing.T) {
 		assert.Equal(row[2], "443", "parsed entries incorrectly")
 		assert.Equal(row[3], "tcp", "parsed entries incorrectly")
 	}
-
 }
 
 func TestBufferAllEntries(t *testing.T) {
 	assert := assert.New(t)
 
 	// Create a new parser with all fields from bro log and raw values
-	parser, err := NewParser("example.log", true)
+	parser, err := NewParser(logpath, true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -84,14 +84,13 @@ func TestBufferAllEntries(t *testing.T) {
 		assert.Equal(row[5], "443", "parsed entries incorrectly")
 		assert.Equal(row[6], "tcp", "parsed entries incorrectly")
 	}
-
 }
 
 func TestFieldsToUnderscore(t *testing.T) {
 
 	assert := assert.New(t)
 
-	parser, err := NewParser("example.log", true)
+	parser, err := NewParser(logpath, true)
 	if err != nil {
 		t.Fatal(err)
 	}
